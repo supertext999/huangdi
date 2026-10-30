@@ -128,11 +128,6 @@
         .restart-btn {
             margin-top:30px;
         }
-        .copy-tip{
-            color:#ffc87c;
-            margin-top:12px;
-            display:none;
-        }
     </style>
 </head>
 <body>
@@ -149,7 +144,6 @@
         <div class="option-list" id="optionBox"></div>
         <div class="ctrl-row">
             <button class="btn btn-small" onclick="prevQuestion()">上一题</button>
-            <button class="btn btn-small" onclick="nextQuestion()">下一题</button>
         </div>
     </div>
 
@@ -161,8 +155,6 @@
             <div class="title">🤣为什么说你像他</div>
             <div id="kingAnaly"></div>
         </div>
-        <button class="btn restart-btn" onclick="copyResult()">复制结果</button>
-        <div class="copy-tip" id="copyTip">✅已复制！快去小红书截图发笔记</div>
         <br>
         <button class="btn restart-btn" onclick="restartTest()">重新测试</button>
     </div>
@@ -339,7 +331,6 @@ const optionBox = document.getElementById("optionBox");
 const kingName = document.getElementById("kingName");
 const kingIntro = document.getElementById("kingIntro");
 const kingAnaly = document.getElementById("kingAnaly");
-const copyTip = document.getElementById("copyTip");
 
 function startTest(){
     startPage.style.display = "none";
@@ -367,23 +358,18 @@ function loadQuestion(){
 function selectOpt(idx){
     selectedOpt[current] = idx;
     score[idx]++;
-}
-function prevQuestion(){
-    if(current>0){
-        current--;
-        loadQuestion();
-    }
-}
-function nextQuestion(){
-    if(selectedOpt[current]===undefined){
-        alert("请先选择一个答案！");
-        return;
-    }
+    // 选完自动跳下一题
     if(current < questionList.length -1){
         current++;
         loadQuestion();
     }else{
         showResult();
+    }
+}
+function prevQuestion(){
+    if(current>0){
+        current--;
+        loadQuestion();
     }
 }
 
@@ -418,19 +404,6 @@ function showResult(){
     kingName.innerText = king.name;
     kingIntro.innerText = king.intro;
     kingAnaly.innerText = king.analy;
-}
-
-function copyResult(){
-    const king = kingList[resIdx];
-    const text = `✨测一测你是哪位古代帝王✨
-结果：${king.name}
-📜简介：${king.intro}
-🤣匹配分析：${king.analy}
-来测测你是千古雄主还是摆烂帝王！`;
-    navigator.clipboard.writeText(text).then(()=>{
-        copyTip.style.display="block";
-        setTimeout(()=>copyTip.style.display="none",2000);
-    })
 }
 
 function restartTest(){
