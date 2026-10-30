@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测一测｜你是中国古代哪位帝王</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "KaiTi", "STKaiti", "SimSun", serif;
+        }
+        body {
+            background: #2c241b;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L100 0 L100 100 L0 100 Z' fill='none' stroke='%23594b3b' stroke-width='0.5' opacity='0.25'/%3E%3C/svg%3E");
+            color: #e8ddcb;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .card {
+            background: rgba(48, 38, 28, 0.85);
+            border: 2px solid #8b6b49;
+            border-radius: 14px;
+            padding: 32px;
+            box-shadow: 0 0 22px rgba(0,0,0,0.45);
+        }
+        .start-page {
+            text-align: center;
+        }
+        .start-page h1 {
+            font-size: 34px;
+            color: #d4b886;
+            margin-bottom: 16px;
+            letter-spacing: 4px;
+        }
+        .start-page p {
+            font-size: 17px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            color: #c9b9a2;
+        }
+        .btn {
+            padding: 14px 36px;
+            background: #7c5836;
+            color: #fff4e0;
+            border: 1px solid #b48c58;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #94693f;
+            box-shadow: 0 0 12px #b98c5270;
+        }
+        .question-wrap {
+            display: none;
+        }
+        .progress {
+            color: #d4b886;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        .question {
+            font-size: 24px;
+            color: #f0ddbc;
+            line-height: 1.65;
+            margin-bottom: 28px;
+        }
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .option-item {
+            padding: 14px 18px;
+            border: 1px solid #6b533b;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 17px;
+            transition: 0.25s;
+        }
+        .option-item:hover {
+            background: rgba(145, 107, 66, 0.32);
+            border-color: #b48c58;
+        }
+        .option-item.selected {
+            background: #805c38;
+            border-color: #e0b877;
+        }
+        .result-page {
+            display: none;
+            text-align: center;
+        }
+        .result-page h2 {
+            font-size: 30px;
+            color: #e2c490;
+            margin-bottom: 12px;
+        }
+        .result-desc {
+            text-align: left;
+            margin-top: 22px;
+            line-height: 1.8;
+            font-size: 17px;
+            color: #ddceb6;
+        }
+        .result-desc .title {
+            color: #e6c894;
+            font-size: 19px;
+            margin:12px 0 6px;
+        }
+        .restart-btn {
+            margin-top:30px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card start-page" id="startPage">
+        <h1>测一测｜你是哪位古代帝王</h1>
+        <p>从秦皇到清帝，有雄主、庸君、昏君。凭第一直觉选择，看看你的帝王命格！共24题</p>
+        <button class="btn" onclick="startTest()">开始测试</button>
+    </div>
+
+    <div class="card question-wrap" id="questionPage">
+        <div class="progress" id="progressText">第 1 / 24 题</div>
+        <div class="question" id="questionText"></div>
+        <div class="option-list" id="optionBox"></div>
+    </div>
+
+    <div class="card result-page" id="resultPage">
+        <h2 id="kingName"></h2>
+        <div class="result-desc">
+            <div class="title">帝王简介</div>
+            <div id="kingIntro"></div>
+            <div class="title">为什么你像他</div>
+            <div id="kingAnaly"></div>
+        </div>
+        <button class="btn restart-btn" onclick="restartTest()">重新测试</button>
+    </div>
+</div>
+
+<script>
+// 25位皇帝
+const kingList = [
+    {
+        name:"秦始皇 嬴政",
+        intro:"秦朝开国皇帝，一统六国，书同文车同轨，建立中央集权帝制；严刑峻法，大兴土木。",
+        analy:"你目标极强，敢打破旧规则，有开拓魄力，做事喜欢集权掌控；但容易急躁，为达成目标不计代价。"
+    },
+    {
+        name:"汉高祖 刘邦",
+        intro:"汉朝开国皇帝，出身平民，知人善任，能屈能伸，打败项羽建立汉朝。",
+        analy:"你懂得审时度势，善于团结别人，不逞个人勇武，能放低身段，很会借力成事。"
+    },
+    {
+        name:"汉武帝 刘彻",
+        intro:"西汉雄主，北击匈奴，开疆拓土，独尊儒术；穷兵黩武，晚年下罪己诏。",
+        analy:"你野心宏大，不甘平庸，愿意主动出击争取想要的东西；热情强势，但容易冲动透支自己。"
+    },
+    {
+        name:"汉光武帝 刘秀",
+        intro:"东汉开国君主，云台之主，平定乱世，治国温和，待人宽厚，堪称完美帝王。",
+        analy:"你性格稳重，情商高，不喜欢激进冒险，擅长稳中求胜，待人温和，懂得收敛锋芒。"
+    },
+    {
+        name:"汉献帝 刘协",
+        intro:"东汉末代皇帝，一生被权臣挟持，有心救国却没有实权，命运身不由己。",
+        analy:"你内心有想法，但常常身不由己，容易被环境和他人牵制，很多时候只能被动妥协。"
+    },
+    {
+        name:"魏文帝 曹丕",
+        intro:"曹魏开国皇帝，文学出众，心机深沉，取代汉朝；擅长权谋，猜忌宗室。",
+        analy:"你心思细腻，擅长权衡利弊，城府深，懂得隐忍等待时机，对身边人防备心较重。"
+    },
+    {
+        name:"晋武帝 司马炎",
+        intro:"西晋开国皇帝，结束三国分裂；前期励精图治，后期奢靡怠政，埋下八王之乱隐患。",
+        analy:"前期能好好做事，一旦安稳就容易放松享乐，容易满足，对长远风险缺少警惕。"
+    },
+    {
+        name:"隋炀帝 杨广",
+        intro:"才华极高，修大运河、征高句丽；好大喜功，滥用民力，是极具争议的暴君。",
+        analy:"你理想宏大，创意很多，行动力强，但容易急于求成，忽略别人的承受能力。"
+    },
+    {
+        name:"唐太宗 李世民",
+        intro:"开创贞观之治，善于纳谏，文治武功顶尖；靠政变上位，一生忌惮名声。",
+        analy:"你有大局观，愿意听不同意见，能力强；但内心很在意别人评价，胜负欲很重。"
+    },
+    {
+        name:"武则天",
+        intro:"中国唯一女帝，杀伐果断，知人善任，改革吏治；手段狠辣，争议极大。",
+        analy:"你独立要强，不被固有规矩束缚，目标坚定，敢于对抗压力，为了目标可以非常果决。"
+    },
+    {
+        name:"唐玄宗 李隆基",
+        intro:"前期开元盛世，后期沉溺享乐，安史之乱由盛转衰，一生高开低走。",
+        analy:"你巅峰期能力很强，热爱美好事物；顺境时容易松懈，容易被爱好、感情拖累。"
+    },
+    {
+        name:"南唐后主 李煜",
+        intro:"诗词天才，不擅长治国，亡国之君，留下无数千古好词，性情柔软敏感。",
+        analy:"你感性细腻，热爱文艺，共情力强，不擅长勾心斗角，在现实博弈里容易吃亏。"
+    },
+    {
+        name:"宋太祖 赵匡胤",
+        intro:"宋朝开国，杯酒释兵权，结束五代战乱；重文轻武，奠定宋朝文风。",
+        analy:"你不喜激烈冲突，擅长温和解决矛盾，喜欢安稳秩序，偏爱稳妥、低风险的方式。"
+    },
+    {
+        name:"宋太宗 赵光义",
+        intro:"继位存疑，两次北伐失败，偏重文治，猜忌心重，性格多疑。",
+        analy:"你内心容易不自信，会反复求证，渴望证明自己，遇事容易犹豫、想太多。"
+    },
+    {
+        name:"宋徽宗 赵佶",
+        intro:"书画奇才，独创瘦金体；治国昏庸，宠信奸臣，靖康之耻被俘。",
+        analy:"审美绝佳，热爱艺术，想象力丰富，但对现实危机迟钝，不擅长处理繁杂压力。"
+    },
+    {
+        name:"元世祖 忽必烈",
+        intro:"元朝开国皇帝，疆域辽阔，兼容多文化，融合草原与中原制度。",
+        analy:"你包容度高，能接纳不同想法，格局开阔，适应力强，喜欢宏大的规划。"
+    },
+    {
+        name:"明太祖 朱元璋",
+        intro:"布衣开国，铁血反腐，制度严苛；猜忌极重，大肆清洗功臣，控制欲极强。",
+        analy:"吃过苦，危机感很重，防备心强，底线清晰，做事雷厉风行，很难信任他人。"
+    },
+    {
+        name:"明成祖 朱棣",
+        intro:"靖难夺位，五征蒙古、郑和下西洋；雄才大略，性格暴戾，控制欲强。",
+        analy:"不服输，敢冒险，不认命，为目标可以不惜代价；强势固执，不喜被反对。"
+    },
+    {
+        name:"明英宗 朱祁镇",
+        intro:"土木堡被俘，两次登基，一生坎坷，轻信小人，心软但命运波折。",
+        analy:"你待人真诚心软，容易轻信别人，容易冲动踩坑，经历挫折之后才慢慢成熟。"
+    },
+    {
+        name:"明武宗 朱厚照",
+        intro:"贪玩爱自由，不喜朝堂束缚，特立独行，不爱按规矩走。",
+        analy:"讨厌死板束缚，向往自由，不喜欢被规训，想按自己的方式过日子。"
+    },
+    {
+        name:"崇祯 朱由检",
+        intro:"勤勉节俭，立志救国，但是多疑急躁，频繁换臣，最终亡国自缢。",
+        analy:"责任心很强，很焦虑，喜欢拼命补救，但容易急躁，遇事容易反复内耗。"
+    },
+    {
+        name:"清圣祖 康熙",
+        intro:"擒鳌拜、平三藩、收台湾，在位极久；晚年吏治松弛，皇子夺嫡。",
+        analy:"耐心极强，擅长长线布局，稳得住；年纪越大越容易心软，不愿大刀阔斧改革。"
+    },
+    {
+        name:"清世宗 雍正",
+        intro:"勤政铁腕，改革赋税，整顿吏治；严苛寡恩，传闻颇多，工作狂帝王。",
+        analy:"极度自律，做事较真，重视规则，不怕得罪人；容易紧绷，不懂放松。"
+    },
+    {
+        name:"清高宗 乾隆",
+        intro:"康乾盛世顶峰，好大喜功，爱盖章，后期闭关，宠信和珅。",
+        analy:"自信乐观，喜欢被认可，爱享受风光，眼界开阔，但容易听不进逆耳忠言。"
+    },
+    {
+        name:"咸丰 奕詝",
+        intro:"清朝最后一位实权皇帝，内忧外患，体弱消沉，无力挽救王朝颓势。",
+        analy:"压力来临时容易疲惫消沉，想努力但常常觉得力不从心，容易悲观内耗。"
+    }
+];
+
+// 24道题目，4个选项 A B C D
+const questionList = [
+    {q:"你有一个机会开创全新规则，你会？",o:["果断推行，强力落地","先拉拢伙伴，慢慢布局","观望看看风险，不着急","维持现状，别折腾"]},
+    {q:"团队里有人和你意见相反，你？",o:["直接压下，按我的来","耐心听，合理就采纳","暗中提防，留一手","顺着对方，避免吵架"]},
+    {q:"有一件大事，收益极高但风险巨大，你？",o:["放手一搏，赌一把","谨慎规划，分步试错","不想碰，安稳优先","交给别人，我不担责"]},
+    {q:"你更擅长哪一种？",o:["开拓新领域，打江山","守好现有局面，稳根基","调和人际关系","享受生活，及时行乐"]},
+    {q:"发现身边人可能背叛你，你？",o:["提前清除，不留隐患","暗中观察收集证据","假装不知道，维持和平","直接质问，看对方说辞"]},
+    {q:"长期枯燥重复的工作，你？",o:["咬牙坚持，严格执行","能偷懒就找轻松办法","容易倦怠，想找点乐子","慢慢熬，等着转机"]},
+    {q:"你取得巨大成功之后，会？",o:["继续扩张，追求更高目标","守住成果，休养生息","享受成果，放松自己","担心灾祸，开始焦虑"]},
+    {q:"手下有能干但野心大的人，你？",o:["限制权力，严加看管","善用其才，制衡约束","放任不管，相信对方","直接不用，避免麻烦"]},
+    {q:"面对强敌压境，第一反应？",o:["主动出击先发制人","固守阵地等待时机","求和谈判减少损失","慌乱，寄希望运气"]},
+    {q:"别人对你的评价，你？",o:["不在乎，我自有主张","很在意，希望留下好名声","无所谓，开心最重要","害怕负面评价"]},
+    {q:"你更喜欢哪种决策方式？",o:["快刀斩乱麻，立刻定","多方打听，反复权衡","跟着直觉走","听多数人的意见"]},
+    {q:"需要花钱办成大事，你？",o:["不惜代价，优先目标","精打细算，控制成本","舍不得投入，尽量省钱","有钱就花，没钱再说"]},
+    {q:"被人欺骗辜负之后，你？",o:["记仇，不再信任同类人","吸取教训，提高警惕","很难释怀，容易心软原谅","自我怀疑，觉得是自己问题"]},
+    {q:"空闲的时候，你更愿意？",o:["研究正事谋划未来","读书练字发展爱好","和朋友玩乐放松","独自发呆休息"]},
+    {q:"一件事失败了，你会？",o:["归咎外部，重整旗鼓","复盘自己哪里做错","逃避，不想再提起","焦虑自责，反复内耗"]},
+    {q:"管理一群人，你偏向？",o:["严刑约束，赏罚分明","宽厚包容，以德服人","平衡各方，和稀泥","很少管，放任自流"]},
+    {q:"有机会打破传统旧规矩，你？",o:["大胆革新，破旧立新","小修小补，不做大改","尽量遵循古制","反感变动，害怕混乱"]},
+    {q:"同时很多麻烦涌过来，你？",o:["逐个强力解决","分清主次慢慢处理","优先躲开麻烦","手忙脚乱很焦虑"]},
+    {q:"你容易相信别人吗？",o:["很难相信任何人","看人，有选择信任","很容易相信别人","表面信任内心提防"]},
+    {q:"为长远目标，能不能忍受当下痛苦？",o:["完全可以，忍常人不能忍","可以，但有底线","很难，不想委屈自己","看能得到多少回报"]},
+    {q:"你对待名声的态度？",o:["名声不重要，成事优先","爱惜羽毛，不想留骂名","名声是身外之物","害怕被人唾骂"]},
+    {q:"如果时代大势已经很难逆转，你？",o:["奋力一搏拼死抗争","尽力修补延缓衰败","接受现实及时行乐","无力改变，陷入消沉"]},
+    {q:"和亲近的人产生利益冲突，你？",o:["以大局为重，牺牲感情","想办法两全兼顾","优先感情，放过对方","猜忌防备，疏远对方"]},
+    {q:"你更认同？",o:["强者靠武力和实力说话","治理靠制度和法度","治理靠人心仁德","人生重在自在随心"]},
+];
+
+let current = 0;
+let score = [0,0,0,0];
+let selectedOpt = [];
+
+const startPage = document.getElementById("startPage");
+const questionPage = document.getElementById("questionPage");
+const resultPage = document.getElementById("resultPage");
+const progressText = document.getElementById("progressText");
+const questionText = document.getElementById("questionText");
+const optionBox = document.getElementById("optionBox");
+const kingName = document.getElementById("kingName");
+const kingIntro = document.getElementById("kingIntro");
+const kingAnaly = document.getElementById("kingAnaly");
+
+function startTest(){
+    startPage.style.display = "none";
+    questionPage.style.display = "block";
+    loadQuestion();
+}
+
+function loadQuestion(){
+    const q = questionList[current];
+    progressText.innerText = `第 ${current+1} / 24 题`;
+    questionText.innerText = q.q;
+    optionBox.innerHTML = "";
+    q.o.forEach((opt,idx)=>{
+        const div = document.createElement("div");
+        div.className = "option-item";
+        div.innerText = opt;
+        if(selectedOpt[current] === idx){
+            div.classList.add("selected");
+        }
+        div.onclick = ()=>selectOpt(idx);
+        optionBox.appendChild(div);
+    })
+}
+
+function selectOpt(idx){
+    selectedOpt[current] = idx;
+    score[idx]++;
+    if(current < questionList.length -1){
+        current++;
+        loadQuestion();
+    }else{
+        showResult();
+    }
+}
+
+function showResult(){
+    questionPage.style.display = "none";
+    resultPage.style.display = "block";
+    // 按分数加权匹配25个帝王
+    const maxS = Math.max(...score);
+    let resIdx = 0;
+    if(score[0]>=score[1]&&score[0]>=score[2]&&score[0]>=score[3]){
+        if(score[0]>=16) resIdx = Math.random()>0.5?0:17;
+        else if(score[0]>=12) resIdx = 8;
+        else if(score[0]>=9) resIdx = 11;
+        else resIdx = 5;
+    }else if(score[1]>=score[0]&&score[1]>=score[2]&&score[1]>=score[3]){
+        if(score[1]>=16) resIdx = 2;
+        else if(score[1]>=12) resIdx = 4;
+        else if(score[1]>=9) resIdx = 12;
+        else resIdx = 1;
+    }else if(score[2]>=score[0]&&score[2]>=score[1]&&score[2]>=score[3]){
+        if(score[2]>=16) resIdx = 16;
+        else if(score[2]>=12) resIdx = 21;
+        else if(score[2]>=9) resIdx = 22;
+        else resIdx = 20;
+    }else{
+        if(score[3]>=16) resIdx = 14;
+        else if(score[3]>=12) resIdx = 10;
+        else if(score[3]>=9) resIdx = 18;
+        else resIdx = 24;
+    }
+    // 兜底防止越界
+    resIdx = Math.min(resIdx,kingList.length-1);
+    const king = kingList[resIdx];
+    kingName.innerText = king.name;
+    kingIntro.innerText = king.intro;
+    kingAnaly.innerText = king.analy;
+}
+
+function restartTest(){
+    current = 0;
+    score = [0,0,0,0];
+    selectedOpt = [];
+    resultPage.style.display = "none";
+    startPage.style.display = "block";
+}
+</script>
+</body>
+</html>
